@@ -397,7 +397,7 @@ button,input,select{font:inherit;color:inherit}
       <p class="acesso__ajuda">Abra a supervisão para ver os vendedores e preencher o funil de cada carteira.</p>
 
       <label>
-        <span class="rot acesso__rotulo">Supervisão · Regional · Vendedores · Clientes</span>
+        <span class="rot acesso__rotulo">Supervisão · Vendedores · Clientes</span>
         <select class="entrada" id="sel-supervisao" required>
           <option value="">Selecione...</option>
         </select>
@@ -710,11 +710,17 @@ function montarAbertura() {
     return '<li><b>' + i.b + '</b><span>' + i.s + '</span></li>';
   }).join('');
 
+  /* regional vira separador (optgroup); a opção leva só supervisão, vendedores e clientes */
+  var grupos = {}, ordem = [];
+  supervisoes().forEach(function (s) {
+    if (!grupos[s.regional]) { grupos[s.regional] = []; ordem.push(s.regional); }
+    grupos[s.regional].push('<option value="' + esc(s.nome) + '">' + esc(s.nome) + ' · ' +
+      plural(s.vendedores, 'vendedor', 'vendedores') + ' · ' +
+      plural(s.clientes, 'cliente', 'clientes') + '</option>');
+  });
   $('#sel-supervisao').innerHTML = '<option value="">Selecione...</option>' +
-    supervisoes().map(function (s) {
-      return '<option value="' + esc(s.nome) + '">' + esc(s.nome) + ' · ' + esc(s.regional) + ' · ' +
-        plural(s.vendedores, 'vendedor', 'vendedores') + ' · ' +
-        plural(s.clientes, 'cliente', 'clientes') + '</option>';
+    ordem.map(function (r) {
+      return '<optgroup label="' + esc(r) + '">' + grupos[r].join('') + '</optgroup>';
     }).join('');
 
   var comAfin = L.afinidade ? ops.filter(temAfinidade).length : 0;
